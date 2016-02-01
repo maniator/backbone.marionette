@@ -196,21 +196,21 @@ var CollectionView = Backbone.View.extend({
     var previousModels = this._filteredSortedModels();
     this.filter = filter;
     var models = this._filteredSortedModels();
-    var currentIds = _.pluck(models, 'cid');
+    var currentIds = _.map(models, 'cid');
     var modelMustBeShown;
     // We resolve the deltas in a different way because we have
     // to respect the sorting algorithm.
-    _.each(models, function(model, index) {
+    _.each(models, (model, index) => {
       if (!this.children.findByModel(model)) {
         this._onCollectionAdd(model, this.collection, {at: index});
       }
-    }, this);
-    _.each(previousModels, function(model) {
+    });
+    _.each(previousModels, model => {
       modelMustBeShown = _.contains(currentIds, model.cid);
       if (this.children.findByModel(model) && !modelMustBeShown) {
         this._onCollectionRemove(model);
       }
-    }, this);
+    });
   },
 
   // Reorder DOM after sorting. When your element's rendering
@@ -249,7 +249,7 @@ var CollectionView = Backbone.View.extend({
       this._appendReorderedChildren(elsToReorder);
 
       // remove any views that have been filtered out
-      _.each(filteredOutViews, this.removeChildView, this);
+      _.each(filteredOutViews, _.bind(this.removeChildView, this));
       this.checkEmpty();
 
       this.triggerMethod('reorder', this);
@@ -312,10 +312,10 @@ var CollectionView = Backbone.View.extend({
 
   // Internal method to loop through collection and show each child view.
   showCollection: function(models) {
-    _.each(models, function(child, index) {
+    _.each(models, (child, index) => {
       var ChildView = this._getChildView(child);
       this.addChild(child, ChildView, index);
-    }, this);
+    });
   },
 
   // Allow the collection to be sorted by a custom view comparator
@@ -672,7 +672,7 @@ var CollectionView = Backbone.View.extend({
       shouldCheckEmpty = destroyOptions.checkEmpty;
     }
 
-    this.children.each(this.removeChildView, this);
+    this.children.each(_.bind(this.removeChildView, this));
 
     if (shouldCheckEmpty) {
       this.checkEmpty();
